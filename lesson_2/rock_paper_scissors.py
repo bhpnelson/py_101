@@ -1,62 +1,98 @@
 import random
 
-VALID_CHOICES = ['rock', 'paper', 'scissors', 'lizard', 'spock']
+VALID_CHOICES = {'r': 'rock', 
+                 'p' : 'paper', 
+                 'sc' : 'scissors', 
+                 'l' : 'lizard', 
+                 'sp' : 'spock'
+}
+
+SEARCHABLE_VALID_CHOICES = list(VALID_CHOICES.values()) + list(VALID_CHOICES.keys())
+
+WIN_CONDITIONS = {
+                'rock' : ['scissors', 'lizard'],
+                'paper' : ['rock', 'spock'],
+                'scissors' : ['paper', 'lizard'],
+                'spock' : ['scissors', 'rock'],
+                'lizard' : ['spock', 'paper']
+}
+
+current_score = {'Player' : 0, 'Computer' : 0}
 
 def prompt(message):
     print(f"==> {message}")
 
-def display_winner(player, computer):
-    prompt(f"You chose {choice}, computer chose {computer_choice}")
+def format_choice(unformatted_input):
+    if unformatted_input in list(VALID_CHOICES.values()):
+        return unformatted_input
+    elif unformatted_input in list(VALID_CHOICES.keys()):
+        return VALID_CHOICES[unformatted_input]
+    else:
+        prompt("That's not a valid choice")
+        return None
 
-    if ((choice == "rock" and computer_choice == "scissors") or
-        (choice == "rock" and computer_choice == "lizard") or
-        (choice == "paper" and computer_choice == "rock") or
-        (choice == "paper" and computer_choice == "spock") or
-        (choice == "scissors" and computer_choice == "paper") or
-        (choice == "scissors" and computer_choice == "lizard") or
-        (choice == "spock" and computer_choice == "scissors") or
-        (choice == "spock" and computer_choice == "rock") or
-        (choice == "lizard" and computer_choice == "spock") or
-        (choice == "lizard" and computer_choice == "paper")
-    ):
+def display_winner(player, computer):
+    prompt(f"You chose {player_choice}, computer chose {computer_choice}")
+
+    if computer_choice in WIN_CONDITIONS[player_choice]:
+        round_winner = 'Player'
         prompt("You win!")
-    elif ((choice == "rock" and computer_choice == "paper") or
-        (choice == "rock" and computer_choice == "spock") or
-        (choice == "paper" and computer_choice == "scissors") or
-        (choice == "paper" and computer_choice == "lizard") or
-        (choice == "scissors" and computer_choice == "rock") or
-        (choice == "scissors" and computer_choice == "spock") or
-        (choice == "spock" and computer_choice == "paper") or
-        (choice == "spock" and computer_choice == "lizard") or
-        (choice == "lizard" and computer_choice == "rock") or
-        (choice == "lizard" and computer_choice == "scissors")
-    ):
+        score_counter_and_display(round_winner)
+    elif player_choice in WIN_CONDITIONS[computer_choice]:
+        round_winner = 'Computer'
         prompt("Computer wins!")
+        score_counter_and_display(round_winner)
     else:
         prompt("It's a tie!")
 
+def score_counter_and_display(round_winner):
+    if round_winner == 'Player':
+        current_score['Player'] += 1
+        prompt(f'The current score is {current_score}')
+    elif round_winner == 'Computer':
+        current_score['Computer'] += 1
+        prompt(f'The current score is {current_score}')
+
+def end_game():
+    if current_score['Player'] >= 3:
+        game_winner = 'Player'
+        return game_winner
+    elif current_score['Computer'] >=3:
+        game_winner = 'Computer'
+        return game_winner
+    else:
+        return None
+
+# Main Program Loop.
+
 while True:
-    prompt(f'Choose one: {", ".join(VALID_CHOICES)}')
-    choice = input()
+    prompt(f"Welcome to SPOCK PAPER LIZARD !!!")
+    prompt(f'''Choose one: {list(VALID_CHOICES.values())}.
+You may use the first letter or first two letters (for S) as an abbreviation.''')
+    unformatted_input = input().lower().strip()
+    # Validate user input.
+    while unformatted_input not in SEARCHABLE_VALID_CHOICES:
+        prompt("That's not a valid choice. Re-enter:")
+        unformatted_input = input().lower().strip()
+    
+    player_choice = format_choice(unformatted_input)
 
-    while choice not in VALID_CHOICES:
-        prompt("That's not a valid choice")
-        choice = input()
+    computer_choice = random.choice(list(VALID_CHOICES.values()))
 
-    computer_choice = random.choice(VALID_CHOICES)
+    display_winner(player_choice, computer_choice)
 
-    display_winner(choice, computer_choice)
+    # Ends game if someone gets to 3 points.
+    if end_game() != None:
+        prompt(f"The winner is {end_game()}!")
 
-    prompt("Do you want to play again (y/n)?")
-    answer = input().lower()
-    while True:
-        if answer.startswith('n') or answer.startswith('y'):
-            break
-
-        prompt('Please enter "y" or "n".')
+    # Reset the score if game ends and player selects to play again.
+        current_score = {'Player' : 0, 'Computer' : 0}
+        prompt("Do you want to play again (y/n)?")
         answer = input().lower()
+        while answer == '' or (answer[0] != 'n' and answer[0] != 'y'):
+            prompt('Please enter "y" or "n".')
+            answer = input().lower()
 
-    if answer[0] == 'n':
-        break
-
+        if answer[0] != "y":
+            break
 
