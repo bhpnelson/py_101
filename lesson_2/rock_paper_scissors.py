@@ -6,10 +6,26 @@ VALID_CHOICES = {'r': 'rock',
                  'p' : 'paper',
                  'sc' : 'scissors',
                  'l' : 'lizard',
-                 'sp' : 'spock'
+                 'sp' : 'spock',
+                 'ro': 'rock',
+                 'pa' : 'paper',
+                 'sci' : 'scissors',
+                 'li' : 'lizard',
+                 'spo' : 'spock',
+                 'roc' : 'rock',
+                 'pap' : 'paper',
+                 'scis' : 'scissors',
+                 'liz' : 'lizard',
+                 'spoc' : 'spock',
+                 'pape' : 'paper',
+                 'sciss' : 'scissors',
+                 'liza' : 'lizard',
+                 'scisso' : 'scissors',
+                 'lizar' : 'lizard',
+                 'scissor' : 'scissors',
 }
 
-SEARCHABLE_VALID_CHOICES = (
+ALL_VALID_INPUTS = (
     list(VALID_CHOICES.values()) + list(VALID_CHOICES.keys())
 )
 
@@ -20,9 +36,6 @@ WIN_CONDITIONS = {
                 'spock' : ['scissors', 'rock'],
                 'lizard' : ['spock', 'paper']
 }
-
-# Set current_score to 0 for each player (otherwise takes place in game loop).
-current_score = {'Player' : 0, 'Computer' : 0}
 
 # Define functions.
 
@@ -40,55 +53,66 @@ def format_choice(unformatted_input):
 
 def display_winner():
     prompt(f"You chose {player_choice}, computer chose {computer_choice}")
-
     if computer_choice in WIN_CONDITIONS[player_choice]:
-        round_winner = 'Player'
         prompt("You win!")
-        score_counter_and_display(round_winner)
+        return 'Player'
     elif player_choice in WIN_CONDITIONS[computer_choice]:
-        round_winner = 'Computer'
         prompt("Computer wins!")
-        score_counter_and_display(round_winner)
+        return 'Computer'
     else:
         prompt("It's a tie!")
 
-def score_counter_and_display(round_winner):
+def score_counter(round_winner):
     if round_winner == 'Player':
         current_score['Player'] += 1
-        prompt(f'The current score is {current_score}')
     elif round_winner == 'Computer':
         current_score['Computer'] += 1
-        prompt(f'The current score is {current_score}')
+        
+def score_display():
+    print(f'+--------------SCORE----------------+')
+    print(f'|   {current_score}    |')
+    print(f'+-----------------------------------+')
 
 def end_game():
     if current_score['Player'] >= 3:
         game_winner = 'Player'
         return game_winner
-    elif current_score['Computer'] >=3:
+    
+    if current_score['Computer'] >=3:
         game_winner = 'Computer'
         return game_winner
-    else:
-        return None
+    
+    return None
 
-
+current_score = {'Player' : 0, 'Computer' : 0}
 
 # Main Program Loop.
 prompt("Welcome to SPOCK PAPER LIZARD !!!")
+prompt("Best of 3 wins is the champion.")
+prompt(f"""It's easy to remember:
+        Rock beats {' and '.join(WIN_CONDITIONS['rock'])}
+        Paper beats {' and '.join(WIN_CONDITIONS['paper'])}
+        Scissors beats {' and '.join(WIN_CONDITIONS['scissors'])}
+        Spock beats {' and '.join(WIN_CONDITIONS['spock'])}
+        Lizard beats {' and '.join(WIN_CONDITIONS['lizard'])}
+""")
 
 while True:
-    prompt(f'''Choose one: {list(VALID_CHOICES.values())}.
-You may use the first letter or first two letters (for S).''')
+    prompt(f'''Choose one: {', '.join(WIN_CONDITIONS)}.
+You may use an abbreviation.''')
     unformatted_input = input().lower().strip()
-    # Validate user input.
-    while unformatted_input not in SEARCHABLE_VALID_CHOICES:
+# Validate user input.
+    while unformatted_input not in ALL_VALID_INPUTS:
         prompt("That's not a valid choice. Re-enter:")
         unformatted_input = input().lower().strip()
 
     player_choice = format_choice(unformatted_input)
 
-    computer_choice = random.choice(list(VALID_CHOICES.values()))
+    computer_choice = random.choice(list(WIN_CONDITIONS.keys()))
 
-    display_winner()
+    score_counter(display_winner())
+
+    score_display()
 
     # Ends game if someone gets to 3 points.
     if end_game() is not None:
